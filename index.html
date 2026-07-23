@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的大学学习知识库</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="container">
+    <section class="welcome">
+        <h1>学习资源汇总中心</h1>
+        <p>网课、网盘、本地文件、站点配置统一管理页面</p>
+    </section>
+
+    <!-- 板块1：网课学习链接 -->
+    <section id="online-course" class="card-box">
+        <h2>🎓 网课学习链接</h2>
+        <div class="card-row" style="margin-top:16px;">
+            <div class="card" onclick="window.open('mechanical.html','_blank')">机械专业课程</div>
+            <div class="card" onclick="window.open('electric.html','_blank')">电气专业课程</div>
+            <div class="card" onclick="window.open('computer.html','_blank')">计算机课程</div>
+            <div class="card" onclick="window.open('general.html','_blank')">通用公共课程</div>
+            <div class="card" onclick="window.open('other.html','_blank')">其他网课资源</div>
+        </div>
+    </section>
+
+    <!-- 板块2：网盘链接 -->
+    <section id="net-disk" class="card-box">
+        <h2>☁️ 网盘链接</h2>
+        <div class="card-row" style="margin-top:16px;">
+            <a target="_blank" href="#" class="card">百度网盘（本地资源库）</a>
+            <a target="_blank" href="#" class="card">夸克网盘（素材备份）</a>
+            <a target="_blank" href="#" class="card">WPS网盘（文档笔记）</a>
+        </div>
+    </section>
+
+    <!-- 板块3：本地链接 -->
+    <section id="local-file" class="card-box">
+        <h2>💻 本地链接</h2>
+        <div class="card-row" style="margin-top:16px;">
+            <a href="网站及密码.docx" class="card">网站及密码.docx</a>
+            <a href="#" class="card">github文件夹</a>
+        </div>
+        <p style="margin-top:16px; color:#666;">注：本地文件仅在电脑本地打开站点时可访问，线上网页无法读取本地文件</p>
+    </section>
+
+    <!-- 板块4：配置 -->
+    <section id="config" class="card-box">
+        <h2>⚙️ 配置（添加/修改链接路由）</h2>
+        <p>用于后续新增、修改页面跳转链接、资源地址</p>
+    </section>
+</main>
+</body>
+</html>
