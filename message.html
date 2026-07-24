@@ -2,17 +2,248 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>💬</text></svg>">
 <title>公开留言板</title>
 <style>
-*{box-sizing:border-box}
-body{max-width:900px;margin:2rem auto;padding:0 1rem;font-family:system-ui}
-.msg-item{border:1px solid #ddd;padding:14px;border-radius:8px;margin:10px 0}
-.name{font-weight:bold;margin-bottom:6px}
-textarea,input{width:100%;padding:10px;margin:6px 0;border:1px solid #ccc;border-radius:6px}
-button{padding:8px 16px;background:#2563eb;color:white;border:none;border-radius:6px;cursor:pointer}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+    max-width:920px;
+    margin:2rem auto;
+    padding:0 1rem;
+    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system;
+    font-weight:bold;
+    background: url("flowers.png") no-repeat center center fixed;
+    background-size: cover;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* 粒子画布 */
+#particles{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 999;
+}
+
+h2{
+    margin-bottom:28px;
+    font-size:51px;
+    text-align:center;
+    font-family:"LiSu","隶书","STLiti",serif;
+    font-weight:normal;
+}
+
+/* 输入框：高透明度 + 液态玻璃 + 边缘轻微扭曲 */
+#username, #msg{
+  width:100%;
+  padding:14px 16px;
+  border:1px solid rgba(255,255,255,0.35);
+  border-radius:14px;
+  font-size:16px;
+  font-weight:bold;
+  font-family:"PingFang SC","Microsoft YaHei",system-ui;
+  transition:0.28s ease;
+  background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.16) 100%);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 
+    0 4px 16px rgba(0,0,0,0.08), 
+    inset 0 1px 1px rgba(255,255,255,0.45),
+    inset 0 -1px 1px rgba(0,0,0,0.04);
+  text-align:center;
+  position: relative;
+}
+
+#username::before, #msg::before{
+  content:"";
+  position: absolute;
+  inset: -1px;
+  border-radius: 15px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.45),
+    rgba(255,255,255,0.15),
+    rgba(255,255,255,0.35)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+#username{margin-bottom:12px}
+#msg{min-height:120px;margin-bottom:14px;resize:vertical}
+
+#username:hover, #msg:hover{
+    border-color:rgba(255,255,255,0.55);
+    background: linear-gradient(135deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.20) 100%);
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 
+      0 12px 30px rgba(0,0,0,0.14), 
+      inset 0 1px 1px rgba(255,255,255,0.55),
+      inset 0 -1px 1px rgba(0,0,0,0.06);
+}
+
+#username:focus,#msg:focus{
+    outline:none;
+    border-color:#a8927b;
+    background: linear-gradient(135deg, rgba(255,255,255,0.36) 0%, rgba(255,255,255,0.22) 100%);
+    transform: translateY(-3px) scale(1.015);
+    box-shadow: 
+      0 0 0 3px rgba(168, 146, 123, 0.18),
+      0 12px 30px rgba(0,0,0,0.14), 
+      inset 0 1px 1px rgba(255,255,255,0.6),
+      inset 0 -1px 1px rgba(0,0,0,0.06);
+}
+
+/* 古风液态玻璃按钮 */
+button{
+  padding:18px 45px;
+  background:linear-gradient(135deg,rgba(160, 134, 108, 0.65),rgba(142, 115, 90, 0.55));
+  color:#fff;
+  border:1px solid rgba(255,255,255,0.35);
+  border-radius:14px;
+  cursor:pointer;
+  font-size:24px;
+  font-family:"LiSu","隶书","STLiti",serif;
+  font-weight:normal;
+  transition: all 0.28s ease;
+  box-shadow: 
+    0 6px 18px rgba(136, 110, 86, 0.28), 
+    inset 0 1px 1px rgba(255,255,255,0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+
+button::before{
+  content:"";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--x, 0) var(--y, 0), rgba(255,255,255,0.25), transparent 35%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+button:hover::before{
+  opacity: 1;
+}
+
+button:hover{
+  background:linear-gradient(135deg,rgba(134, 108, 82, 0.75),rgba(114, 92, 72, 0.65));
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 
+    0 14px 36px rgba(136, 110, 86, 0.42), 
+    inset 0 1px 1px rgba(255,255,255,0.45);
+}
+
+button:active{
+    transform: translateY(0px) scale(0.985);
+    box-shadow: 
+      0 3px 10px rgba(136, 110, 86, 0.22), 
+      inset 0 1px 1px rgba(255,255,255,0.25);
+}
+
+hr{margin:34px 0;border:none;border-top:1px solid rgba(255,255,255,0.35)}
+
+/* 留言卡片：高透液态玻璃 + 边缘扭曲 */
+.msg-item{
+  border-radius:16px;
+  padding:20px 22px;
+  margin-bottom:16px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.14) 100%);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 
+    0 4px 16px rgba(0,0,0,0.08), 
+    inset 0 1px 1px rgba(255,255,255,0.45),
+    inset 0 -1px 1px rgba(0,0,0,0.04);
+  border:1px solid rgba(255,255,255,0.38);
+  transition:0.28s ease;
+  cursor:default;
+  position: relative;
+  overflow: hidden;
+}
+
+.msg-item::before{
+  content:"";
+  position: absolute;
+  inset: -1px;
+  border-radius: 17px;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(255,255,255,0.45),
+    rgba(255,255,255,0.15),
+    rgba(255,255,255,0.35)
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.msg-item::after{
+  content:"";
+  position: absolute;
+  inset: -30%;
+  background: radial-gradient(circle at var(--x, 0) var(--y, 0), rgba(255,255,255,0.18), transparent 40%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.msg-item:hover::after{
+  opacity: 1;
+}
+
+.msg-item:hover{
+    background: linear-gradient(135deg, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.18) 100%);
+    box-shadow: 
+      0 16px 38px rgba(0,0,0,0.18), 
+      inset 0 1px 1px rgba(255,255,255,0.55),
+      inset 0 -1px 1px rgba(0,0,0,0.06);
+    transform: translateY(-4px) scale(1.015);
+}
+
+.msg-visitor{
+  font-size:16px;
+  color:#333;
+  margin-bottom:8px;
+}
+.msg-content{
+  font-size:18px;
+  line-height:1.7;
+  color:#111;
+  margin-bottom:12px;
+  text-align:left;
+}
+.msg-time{
+  font-size:14px;
+  color:#666;
+  text-align:right;
+}
+::placeholder {
+  color:#555555;
+  opacity:0.7;
+}
 </style>
 </head>
 <body>
+<canvas id="particles"></canvas>
+
 <h2>公开留言板</h2>
 <div id="form-box">
 <input type="text" id="username" placeholder="昵称（选填）">
@@ -25,6 +256,11 @@ button{padding:8px 16px;background:#2563eb;color:white;border:none;border-radius
 <script>
 const WORKER_URL = "https://msg-api.1377400396.workers.dev";
 
+function cleanText(str){
+  if(!str) return "";
+  return str.replace(/^###\s*/gm,"");
+}
+
 async function loadList(){
   try{
     const res = await fetch(`${WORKER_URL}/list`);
@@ -32,11 +268,35 @@ async function loadList(){
     const dom = document.getElementById("board");
     dom.innerHTML = "";
     list.forEach(item=>{
+      let bodyRaw = cleanText(item.body);
+      let timeText = "";
+      let contentText = bodyRaw;
+
+      const timeMatch = bodyRaw.match(/>\s*提交时间[:：]\s*(.+)$/m);
+      if(timeMatch){
+        timeText = timeMatch[1];
+        contentText = bodyRaw.replace(/\n*> 提交时间[:：].+$/m,"").trim();
+      }
+
+      let visitorName = "";
+      let realMsg = contentText;
+      const nameMatch = contentText.match(/访客[:：]\s*(.+?)\n/);
+      if(nameMatch){
+        visitorName = nameMatch[1].trim();
+        realMsg = contentText.replace(/访客[:：].+?\n/,"").trim();
+      }
+
+      let visitorLine = "";
+      if(visitorName && visitorName !== "匿名访客"){
+        visitorLine = `<div class="msg-visitor">访客：${visitorName}</div>`;
+      }
+
       const div = document.createElement("div");
       div.className="msg-item";
       div.innerHTML = `
-        <div class="name">${item.title}</div>
-        <div>${item.body}</div>
+        ${visitorLine}
+        <div class="msg-content">留言内容：${realMsg.replaceAll("\n","<br>")}</div>
+        <div class="msg-time">${timeText}</div>
       `;
       dom.appendChild(div);
     })
@@ -49,17 +309,13 @@ async function sendMsg(){
   const name = document.getElementById("username").value.trim() || "匿名访客";
   const content = document.getElementById("msg").value.trim();
   if(!content) return alert("请输入留言");
-
-  // 【关键】浏览器本地生成东八区时间，不再依靠服务器
-  const localTime = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
-
   try{
     await fetch(`${WORKER_URL}/submit`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({name,content,submitTime:localTime})
+      body:JSON.stringify({name,content})
     })
-    alert("提交成功，刷新查看！");
+    alert("提交成功，自动刷新");
     document.getElementById("msg").value = "";
     loadList();
   }catch(err){
@@ -69,6 +325,89 @@ async function sendMsg(){
 }
 
 window.onload = loadList;
+
+/* 粒子动画：鼠标移动 + 点击扩散 */
+const canvas = document.getElementById("particles");
+const ctx = canvas.getContext("2d");
+
+let w, h;
+let particles = [];
+let mouse = { x: 0, y: 0 };
+
+function resize(){
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize", resize);
+
+class Particle{
+  constructor(x, y, type = "move"){
+    this.x = x;
+    this.y = y;
+    this.size = type === "click" ? Math.random() * 6 + 4 : Math.random() * 3 + 2;
+    this.speedX = (Math.random() - 0.5) * (type === "click" ? 6 : 2);
+    this.speedY = (Math.random() - 0.5) * (type === "click" ? 6 : 2);
+    this.life = 1;
+    this.decay = type === "click" ? 0.018 : 0.008;
+    this.color = type === "click" 
+      ? `rgba(160, 134, 108, ${Math.random() * 0.45 + 0.25})`
+      : `rgba(255, 255, 255, ${Math.random() * 0.35 + 0.15})`;
+  }
+  update(){
+    this.x += this.speedX;
+    this.y += this.speedY;
+    this.life -= this.decay;
+    this.size *= 0.97;
+  }
+  draw(){
+    ctx.save();
+    ctx.globalAlpha = this.life;
+    ctx.fillStyle = this.color;
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function spawn(x, y, type = "move"){
+  const count = type === "click" ? 12 : 3;
+  for(let i = 0; i < count; i++){
+    particles.push(new Particle(x, y, type));
+  }
+}
+
+window.addEventListener("mousemove", e=>{
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  spawn(mouse.x, mouse.y, "move");
+
+  document.querySelectorAll("button, .msg-item, #username, #msg").forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    const x = ((mouse.x - rect.left) / rect.width) * 100;
+    const y = ((mouse.y - rect.top) / rect.height) * 100;
+    el.style.setProperty("--x", `${x}%`);
+    el.style.setProperty("--y", `${y}%`);
+  });
+});
+
+window.addEventListener("mousedown", e=>{
+  for(let i = 0; i < 3; i++){
+    setTimeout(()=> spawn(e.clientX, e.clientY, "click"), i * 16);
+  }
+});
+
+function animate(){
+  ctx.clearRect(0, 0, w, h);
+  particles = particles.filter(p=> p.life > 0 && p.size > 0.5);
+  particles.forEach(p=>{
+    p.update();
+    p.draw();
+  });
+  requestAnimationFrame(animate);
+}
+animate();
 </script>
 </body>
 </html>
