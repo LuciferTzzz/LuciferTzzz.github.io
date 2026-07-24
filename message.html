@@ -49,11 +49,15 @@ async function sendMsg(){
   const name = document.getElementById("username").value.trim() || "匿名访客";
   const content = document.getElementById("msg").value.trim();
   if(!content) return alert("请输入留言");
+
+  // 【关键】浏览器本地生成东八区时间，不再依靠服务器
+  const localTime = new Date().toLocaleString('zh-CN',{timeZone:'Asia/Shanghai'});
+
   try{
     await fetch(`${WORKER_URL}/submit`,{
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({name,content})
+      body:JSON.stringify({name,content,submitTime:localTime})
     })
     alert("提交成功，刷新查看！");
     document.getElementById("msg").value = "";
