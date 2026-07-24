@@ -2,6 +2,8 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<!-- 移动端视口适配，必不可少 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>💬</text></svg>">
 <title>公开留言板</title>
 <style>
@@ -10,7 +12,7 @@ body{
     max-width:920px;
     margin:2rem auto;
     padding:0 1rem;
-    font-family:"PingFang SC","Microsoft YaHei",system-ui,-apple-system;
+    font-family:"PingFang SC","Microsoft YaHei","HarmonyOS Sans SC",system-ui,-apple-system,sans-serif;
     font-weight:bold;
     background: url("flowers.png") no-repeat center center fixed;
     background-size: cover;
@@ -31,10 +33,11 @@ body{
 }
 
 h2{
-    margin-bottom:28px;
-    font-size:51px;
+    margin-bottom:clamp(20px,4vw,28px);
+    font-size:clamp(36px,7vw,51px);
     text-align:center;
-    font-family:"LiSu","隶书","STLiti",serif;
+    /* 跨平台隶书完整字体栈，鸿蒙/安卓兼容兜底 */
+    font-family:"LiSu","隶书","STLiti","KaiTi","楷体","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
     font-weight:normal;
 }
 
@@ -44,9 +47,9 @@ h2{
   padding:14px 16px;
   border:1px solid rgba(255,255,255,0.35);
   border-radius:14px;
-  font-size:16px;
+  font-size:clamp(15px,3vw,16px);
   font-weight:bold;
-  font-family:"PingFang SC","Microsoft YaHei",system-ui;
+  font-family:"PingFang SC","Microsoft YaHei","HarmonyOS Sans SC",system-ui,-apple-system,sans-serif;
   transition:0.28s ease;
   background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.16) 100%);
   backdrop-filter: blur(18px) saturate(150%);
@@ -104,16 +107,16 @@ h2{
       inset 0 -1px 1px rgba(0,0,0,0.06);
 }
 
-/* 古风液态玻璃按钮 */
+/* 古风液态玻璃按钮【字体栈同步优化】 */
 button{
-  padding:18px 45px;
+  padding:clamp(14px,4vw,18px) clamp(32px,8vw,45px);
   background:linear-gradient(135deg,rgba(160, 134, 108, 0.65),rgba(142, 115, 90, 0.55));
   color:#fff;
   border:1px solid rgba(255,255,255,0.35);
   border-radius:14px;
   cursor:pointer;
-  font-size:24px;
-  font-family:"LiSu","隶书","STLiti",serif;
+  font-size:clamp(19px,5vw,24px);
+  font-family:"LiSu","隶书","STLiti","KaiTi","楷体","HarmonyOS Sans SC","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
   font-weight:normal;
   transition: all 0.28s ease;
   box-shadow: 
@@ -154,12 +157,12 @@ button:active{
       inset 0 1px 1px rgba(255,255,255,0.25);
 }
 
-hr{margin:34px 0;border:none;border-top:1px solid rgba(255,255,255,0.35)}
+hr{margin:clamp(24px,5vw,34px) 0;border:none;border-top:1px solid rgba(255,255,255,0.35)}
 
 /* 留言卡片：高透液态玻璃 + 边缘扭曲 */
 .msg-item{
   border-radius:16px;
-  padding:20px 22px;
+  padding:clamp(16px,3vw,20px) clamp(18px,3vw,22px);
   margin-bottom:16px;
   background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.14) 100%);
   backdrop-filter: blur(18px) saturate(150%);
@@ -219,19 +222,19 @@ hr{margin:34px 0;border:none;border-top:1px solid rgba(255,255,255,0.35)}
 }
 
 .msg-visitor{
-  font-size:16px;
+  font-size:clamp(14px,3vw,16px);
   color:#333;
   margin-bottom:8px;
 }
 .msg-content{
-  font-size:18px;
+  font-size:clamp(16px,3vw,18px);
   line-height:1.7;
   color:#111;
   margin-bottom:12px;
   text-align:left;
 }
 .msg-time{
-  font-size:14px;
+  font-size:clamp(12px,2.5vw,14px);
   color:#666;
   text-align:right;
 }
