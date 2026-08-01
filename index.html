@@ -160,13 +160,13 @@ body{
         </div>
     </section>
 
-    <!-- 板块2：网盘链接 -->
+    <!-- 板块2：网盘链接（已修改唤起逻辑） -->
     <section id="net-disk" class="card-box">
         <h2>网盘链接</h2>
         <div class="card-row" style="margin-top:16px;">
-            <a target="_blank" href="#" class="card">百度网盘（本地资源库）</a>
-            <a target="_blank" href="#" class="card">夸克网盘（素材备份）</a>
-            <a target="_blank" href="#" class="card">WPS网盘（文档笔记）</a>
+            <div class="card" onclick="launchClient('baiduyun://','https://pan.baidu.com','百度网盘')">百度网盘（本地资源库）</div>
+            <div class="card" onclick="launchClient('quark://','https://pan.quark.cn','夸克网盘（素材备份）')">夸克网盘（素材备份）</div>
+            <div class="card" onclick="launchWps()">WPS网盘（文档笔记）</div>
         </div>
     </section>
 
@@ -208,6 +208,58 @@ function copyGithubPath(){
     }).catch(()=>{
         alert('复制失败，路径：\n' + path);
     })
+}
+
+/**
+ * 通用唤起本地客户端函数（百度网盘/夸克网盘使用）
+ * @param scheme 协议
+ * @param webUrl 网页兜底地址
+ * @param name 软件名称
+ */
+function launchClient(scheme, webUrl, name){
+    let switched = false;
+    const timer = setTimeout(()=>{
+        if(!switched){
+            const confirmOpen = confirm(`无法唤起${name}客户端，是否打开网页版？`);
+            if(confirmOpen){
+                window.open(webUrl,"_blank");
+            }
+        }
+        document.removeEventListener("visibilitychange", visibilityHandler);
+    },1200);
+
+    function visibilityHandler(){
+        if(document.hidden){
+            switched = true;
+            clearTimeout(timer);
+            document.removeEventListener("visibilitychange", visibilityHandler);
+        }
+    }
+    document.addEventListener("visibilitychange", visibilityHandler);
+    window.location.href = scheme;
+}
+
+/**
+ * WPS专属唤起逻辑，失败直接跳转指定文档空间
+ */
+function launchWps(){
+    let switched = false;
+    const timer = setTimeout(()=>{
+        if(!switched){
+            window.open("https://www.kdocs.cn/space/644295476/311635169","_blank");
+        }
+        document.removeEventListener("visibilitychange", visibilityHandlerWps);
+    },1200);
+
+    function visibilityHandlerWps(){
+        if(document.hidden){
+            switched = true;
+            clearTimeout(timer);
+            document.removeEventListener("visibilitychange", visibilityHandlerWps);
+        }
+    }
+    document.addEventListener("visibilitychange", visibilityHandlerWps);
+    window.location.href = "wps://";
 }
 
 /* 粒子动画 + 鼠标跟随反光变量注入 */
