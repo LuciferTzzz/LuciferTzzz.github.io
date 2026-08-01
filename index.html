@@ -11,7 +11,7 @@ body{
     max-width:960px;
     margin:2rem auto;
     padding:0 clamp(0.8rem,3vw,1.2rem);
-    font-family:"LiSu","隶书","STLiti","KaiTi","HarmonyOS Sans SC","PingFang SC",system-ui,-apple-system,sans-serif;
+    font-family:"PingFang SC","Microsoft YaHei","HarmonyOS Sans SC",system-ui,-apple-system,sans-serif;
     font-weight:bold;
     background: url("flowers.png") no-repeat center center fixed;
     background-size: cover;
@@ -150,7 +150,7 @@ body{
 
     <!-- 板块1：网课学习链接 -->
     <section id="online-course" class="card-box">
-        <h2>🎓 网课学习链接</h2>
+        <h2>网课学习链接</h2>
         <div class="card-row" style="margin-top:16px;">
             <div class="card" onclick="window.open('mechanical.html','_blank')">机械专业课程</div>
             <div class="card" onclick="window.open('electric.html','_blank')">电气专业课程</div>
@@ -162,27 +162,27 @@ body{
 
     <!-- 板块2：网盘链接 -->
     <section id="net-disk" class="card-box">
-        <h2>☁️ 网盘链接</h2>
+        <h2>网盘链接</h2>
         <div class="card-row" style="margin-top:16px;">
-            <div class="card" onclick="openApp('baidunetdisk://','https://pan.baidu.com','百度网盘')">百度网盘（本地资源库）</div>
-            <div class="card" onclick="openApp('quark://','https://pan.quark.cn','夸克网盘')">夸克网盘（素材备份）</div>
-            <div class="card" onclick="openApp('wps://','https://www.kdocs.cn','WPS网盘')">WPS网盘（文档笔记）</div>
+            <div class="card" onclick="launchClient('baidunetdisk://','https://pan.baidu.com','百度网盘')">百度网盘（本地资源库）</div>
+            <div class="card" onclick="launchClient('quark://','https://pan.quark.cn','夸克网盘')">夸克网盘（素材备份）</div>
+            <div class="card" onclick="launchWps()">WPS网盘（文档笔记）</div>
         </div>
     </section>
 
     <!-- 板块3：本地链接 -->
     <section id="local-file" class="card-box">
-        <h2>📂 本地链接</h2>
+        <h2>本地链接</h2>
         <div class="card-row" style="margin-top:16px;">
             <a href="网站及密码.docx" class="card">网站及密码.docx</a>
-            <div class="card" onclick="copyGithubFolder()">github文件夹（复制路径）</div>
+            <div class="card" onclick="copyGithubPath()">github文件夹（复制路径）</div>
         </div>
-        <p>注：docx文档仅在本地http服务访问站点时可用，线上github.io无法读取本地文件</p>
+        <p>注：本地文件仅在电脑本地打开站点时可访问，线上网页无法读取本地文件</p>
     </section>
 
     <!-- 板块4：本站功能 -->
     <section id="site-func" class="card-box">
-        <h2>🔧 本站功能</h2>
+        <h2>本站功能</h2>
         <div class="card-row" style="margin-top:16px;">
             <div class="card" onclick="window.open('message.html','_blank')">公开留言板</div>
             <div class="card" onclick="window.open('https://github.com/LuciferTzzz/LuciferTzzz.github.io/issues?q=label%3Amessage-board','_blank')">留言管理后台</div>
@@ -191,7 +191,7 @@ body{
 
     <!-- 板块5：配置管理 -->
     <section id="config" class="card-box">
-        <h2>⚙️ 配置（站点部署相关）</h2>
+        <h2>配置（站点部署相关）</h2>
         <div class="card-row" style="margin-top:16px;">
             <a target="_blank" href="https://github.com" class="card">Github主页</a>
             <a target="_blank" href="https://dash.cloudflare.com/" class="card">Cloudflare控制台</a>
@@ -200,33 +200,95 @@ body{
 </main>
 
 <script>
-// 复制github本地目录
-function copyGithubFolder(){
+// 判断当前是否为本地文件打开（file://协议）
+const isLocalFile = window.location.protocol === "file:";
+
+// 复制github本地文件夹路径
+function copyGithubPath(){
     const path = 'D:\\study\\coding\\github';
     navigator.clipboard.writeText(path).then(()=>{
-        alert('本地目录路径复制成功！\n路径：' + path + '\n打开此电脑地址栏粘贴直接跳转');
+        alert('路径已复制：\n' + path + '\n打开此电脑，地址栏粘贴跳转');
     }).catch(()=>{
-        alert('复制失败！路径：D:\\study\\coding\\github');
+        alert('复制失败，路径：\n' + path);
     })
 }
 
 /**
- * 极简唤起客户端函数
- * @param scheme 自定义协议
+ * 通用唤起本地客户端函数
+ * @param scheme 协议
  * @param webUrl 网页兜底地址
- * @param appName 软件名称
+ * @param name 软件名称
  */
-function openApp(scheme, webUrl, appName){
-    const newTab = window.open(scheme, '_self');
-    setTimeout(()=>{
-        const jump = confirm(`无法唤起【${appName}】客户端？\n确认打开网页版`);
-        if(jump){
-            window.open(webUrl,'_blank');
+function launchClient(scheme, webUrl, name){
+    // 如果本地文件模式，直接弹窗选择（绕过失效的visibility检测）
+    if(isLocalFile){
+        const select = confirm(`尝试唤起【${name}】客户端\n确认=尝试打开软件\n取消=打开网页版`);
+        if(select){
+            window.location.href = scheme;
+        }else{
+            window.open(webUrl,"_blank");
         }
-    },1400)
+        return;
+    }
+
+    // 线上网页（https）使用原有的页面可见性检测方案
+    let switched = false;
+    const timer = setTimeout(()=>{
+        if(!switched){
+            const confirmOpen = confirm(`无法唤起${name}客户端，是否打开网页版？`);
+            if(confirmOpen){
+                window.open(webUrl,"_blank");
+            }
+        }
+        document.removeEventListener("visibilitychange", visibilityHandler);
+    },1200);
+
+    function visibilityHandler(){
+        if(document.hidden){
+            switched = true;
+            clearTimeout(timer);
+            document.removeEventListener("visibilitychange", visibilityHandler);
+        }
+    }
+    document.addEventListener("visibilitychange", visibilityHandler);
+    window.location.href = scheme;
 }
 
-/* 粒子动画 + 鼠标反光交互 */
+/**
+ * WPS专属唤起逻辑
+ */
+function launchWps(){
+    const wpsWeb = "https://www.kdocs.cn/space/644295476/311635169";
+    if(isLocalFile){
+        const select = confirm(`尝试唤起【WPS】客户端\n确认=尝试打开软件\n取消=打开网页版`);
+        if(select){
+            window.location.href = "wps://";
+        }else{
+            window.open(wpsWeb,"_blank");
+        }
+        return;
+    }
+
+    let switched = false;
+    const timer = setTimeout(()=>{
+        if(!switched){
+            window.open(wpsWeb,"_blank");
+        }
+        document.removeEventListener("visibilitychange", visibilityHandlerWps);
+    },1200);
+
+    function visibilityHandlerWps(){
+        if(document.hidden){
+            switched = true;
+            clearTimeout(timer);
+            document.removeEventListener("visibilitychange", visibilityHandlerWps);
+        }
+    }
+    document.addEventListener("visibilitychange", visibilityHandlerWps);
+    window.location.href = "wps://";
+}
+
+/* 粒子动画 + 鼠标跟随反光变量注入 */
 const canvas = document.getElementById("particles");
 const ctx = canvas.getContext("2d");
 let w, h;
@@ -241,15 +303,17 @@ resize();
 window.addEventListener("resize", resize);
 
 class Particle{
-  constructor(x, y){
+  constructor(x, y, type = "move"){
     this.x = x;
     this.y = y;
-    this.size = Math.random() * 3 + 2;
-    this.speedX = (Math.random() - 0.5) * 2;
-    this.speedY = (Math.random() - 0.5) * 2;
+    this.size = type === "click" ? Math.random() * 6 + 4 : Math.random() * 3 + 2;
+    this.speedX = (Math.random() - 0.5) * (type === "click" ? 6 : 2);
+    this.speedY = (Math.random() - 0.5) * (type === "click" ? 6 : 2);
     this.life = 1;
-    this.decay = 0.008;
-    this.color = `rgba(120, 130, 150, ${Math.random() * 0.25 + 0.1})`;
+    this.decay = type === "click" ? 0.018 : 0.008;
+    this.color = type === "click"
+      ? `rgba(80, 90, 110, ${Math.random() * 0.35 + 0.18})`
+      : `rgba(120, 130, 150, ${Math.random() * 0.25 + 0.1})`;
   }
   update(){
     this.x += this.speedX;
@@ -268,37 +332,43 @@ class Particle{
   }
 }
 
-function initParticles(){
-    particles = [];
-    for(let i=0;i<60;i++){
-        particles.push(new Particle(Math.random()*w, Math.random()*h));
-    }
+function spawn(x, y, type = "move"){
+  const count = type === "click" ? 12 : 3;
+  for(let i = 0; i < count; i++){
+    particles.push(new Particle(x, y, type));
+  }
 }
-initParticles();
+
+window.addEventListener("mousemove", e=>{
+  mouse.x = e.clientX;
+  mouse.y = e.clientY;
+  spawn(mouse.x, mouse.y, "move");
+
+  document.querySelectorAll(".card-box, .card").forEach(el=>{
+    const rect = el.getBoundingClientRect();
+    const x = ((mouse.x - rect.left) / rect.width) * 100;
+    const y = ((mouse.y - rect.top) / rect.height) * 100;
+    el.style.setProperty("--x", `${x}%`);
+    el.style.setProperty("--y", `${y}%`);
+  });
+});
+
+window.addEventListener("mousedown", e=>{
+  for(let i = 0; i < 3; i++){
+    setTimeout(()=> spawn(e.clientX, e.clientY, "click"), i * 16);
+  }
+});
 
 function animate(){
-    ctx.clearRect(0,0,w,h);
-    for(let i=0;i<particles.length;i++){
-        particles[i].update();
-        particles[i].draw();
-        if(particles[i].life <= 0){
-            particles.splice(i,1);
-            i--;
-            particles.push(new Particle(Math.random()*w, Math.random()*h));
-        }
-    }
-    requestAnimationFrame(animate);
+  ctx.clearRect(0, 0, w, h);
+  particles = particles.filter(p=> p.life > 0 && p.size > 0.5);
+  particles.forEach(p=>{
+    p.update();
+    p.draw();
+  });
+  requestAnimationFrame(animate);
 }
 animate();
-
-// 卡片鼠标反光效果
-document.querySelectorAll(".card-box, .card").forEach(el=>{
-    el.addEventListener("mousemove",e=>{
-        const rect = el.getBoundingClientRect();
-        el.style.setProperty('--x', e.clientX - rect.left + "px");
-        el.style.setProperty('--y', e.clientY - rect.top + "px");
-    })
-})
 </script>
 </body>
 </html>
