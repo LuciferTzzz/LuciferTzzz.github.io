@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>📚</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='90' font-size='90'>📚</text>">
 <title>唐泽子瞻的资源收集站</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -47,7 +47,7 @@ body{
     backdrop-filter: blur(16px) saturate(140%);
     -webkit-backdrop-filter: blur(16px) saturate(140%);
     border:1px solid rgba(255,255,255,0.85);
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06), inset 0 1px 1px rgba(255,255,255,0.8);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06), inset 0 1px 1px rgba(255,255,0.8);
     transition:0.28s ease;
     position:relative;
     overflow:hidden;
@@ -61,7 +61,7 @@ body{
     padding:1px;
     background:linear-gradient(135deg,rgba(255,255,255,0.9),rgba(255,255,255,0.25),rgba(255,255,255,0.7));
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask: linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     opacity:0.55;
@@ -81,7 +81,7 @@ body{
 }
 .card-box:hover{
     transform: translateY(-3px);
-    box-shadow:0 14px 32px rgba(15, 23, 42, 0.10), inset 0 1px 1px rgba(255,255,255,0.9);
+    box-shadow:0 14px 32px rgba(15, 23, 42, 0.10), inset 0 1px 1px rgba(255,255,0.9);
 }
 .card-box h2{
     font-size:clamp(20px,4vw,26px);
@@ -109,7 +109,7 @@ body{
     transition:0.26s ease;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    box-shadow:0 2px 10px rgba(15,23,42,0.05), inset 0 1px 1px rgba(255,255,255,0.75);
+    box-shadow:0 2px 10px rgba(15,23,42,0.05), inset 0 1px 1px rgba(255,255,0.75);
     position:relative;
     overflow:hidden;
     cursor:pointer;
@@ -129,7 +129,7 @@ body{
 .card:hover{
     transform: translateY(-3px) scale(1.02);
     background:linear-gradient(135deg,rgba(255,255,255,0.75),rgba(255,255,255,0.52));
-    box-shadow:0 10px 24px rgba(15,23,42,0.09), inset 0 1px 1px rgba(255,255,255,0.85);
+    box-shadow:0 10px 24px rgba(15,23,42,0.09), inset 0 1px 1px rgba(255,255,0.85);
 }
 .card:active{
     transform: translateY(0px) scale(0.985);
@@ -177,7 +177,7 @@ body{
             <a href="网站及密码.docx" class="card">网站及密码.docx</a>
             <div class="card" onclick="copyGithubPath()">github文件夹（复制路径）</div>
         </div>
-        <p>注：本地文件仅在电脑本地打开站点时可访问，线上网页无法读取本地文件</p>
+        <p>注：本地文件仅在电脑本地启动http服务打开站点时可访问，线上网页无法读取本地文件</p>
     </section>
 
     <!-- 板块4：本站功能 -->
@@ -214,13 +214,12 @@ function copyGithubPath(){
 }
 
 /**
- * 通用唤起本地客户端函数
+ * 通用唤起本地客户端函数（新版blur监听，修复已开软件误报）
  * @param scheme 协议
  * @param webUrl 网页兜底地址
  * @param name 软件名称
  */
-function launchClient(scheme, webUrl, name){
-    // 如果本地文件模式，直接弹窗选择（绕过失效的visibility检测）
+function launchClient(scheme, webUrl, name) {
     if(isLocalFile){
         const select = confirm(`尝试唤起【${name}】客户端\n确认=尝试打开软件\n取消=打开网页版`);
         if(select){
@@ -230,32 +229,18 @@ function launchClient(scheme, webUrl, name){
         }
         return;
     }
-
-    // 线上网页（https）使用原有的页面可见性检测方案
-    let switched = false;
-    const timer = setTimeout(()=>{
-        if(!switched){
-            const confirmOpen = confirm(`无法唤起${name}客户端，是否打开网页版？`);
-            if(confirmOpen){
-                window.open(webUrl,"_blank");
-            }
-        }
-        document.removeEventListener("visibilitychange", visibilityHandler);
-    },1200);
-
-    function visibilityHandler(){
-        if(document.hidden){
-            switched = true;
-            clearTimeout(timer);
-            document.removeEventListener("visibilitychange", visibilityHandler);
-        }
-    }
-    document.addEventListener("visibilitychange", visibilityHandler);
+    // 直接唤起协议，不监听焦点，不抢窗口
     window.location.href = scheme;
+    setTimeout(() => {
+        const confirmOpen = confirm(`如果没有打开${name}，是否需要打开网页版？`);
+        if (confirmOpen) {
+            window.open(webUrl, "_blank");
+        }
+    }, 2000);
 }
 
 /**
- * WPS专属唤起逻辑
+ * WPS专属唤起逻辑（同步新版blur方案）
  */
 function launchWps(){
     const wpsWeb = "https://www.kdocs.cn/space/644295476/311635169";
@@ -269,23 +254,21 @@ function launchWps(){
         return;
     }
 
-    let switched = false;
-    const timer = setTimeout(()=>{
-        if(!switched){
-            window.open(wpsWeb,"_blank");
+    const timeoutMs = 2000;
+    let fallbackTriggered = false;
+    const timer = setTimeout(() => {
+        fallbackTriggered = true;
+        const confirmOpen = confirm(`无法唤起WPS客户端，是否打开网页版？`);
+        if (confirmOpen) {
+            window.open(wpsWeb, "_blank");
         }
-        document.removeEventListener("visibilitychange", visibilityHandlerWps);
-    },1200);
+    }, timeoutMs);
 
-    function visibilityHandlerWps(){
-        if(document.hidden){
-            switched = true;
-            clearTimeout(timer);
-            document.removeEventListener("visibilitychange", visibilityHandlerWps);
-        }
-    }
-    document.addEventListener("visibilitychange", visibilityHandlerWps);
     window.location.href = "wps://";
+    window.addEventListener("blur", function onBlur() {
+        if (!fallbackTriggered) clearTimeout(timer);
+        window.removeEventListener("blur", onBlur);
+    }, { once:true });
 }
 
 /* 粒子动画 + 鼠标跟随反光变量注入 */
