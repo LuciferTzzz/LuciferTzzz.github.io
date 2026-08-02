@@ -220,7 +220,7 @@ function copyGithubPath(){
  * @param name 软件名称
  */
 function launchClient(scheme, webUrl, name){
-    // 如果本地文件模式，直接弹窗选择（绕过失效的visibility检测）
+    // 本地file模式逻辑完全保留原样
     if(isLocalFile){
         const select = confirm(`尝试唤起【${name}】客户端\n确认=尝试打开软件\n取消=打开网页版`);
         if(select){
@@ -231,26 +231,39 @@ function launchClient(scheme, webUrl, name){
         return;
     }
 
-    // 线上网页（https）使用原有的页面可见性检测方案
     let switched = false;
+    // Mac系统延长至2500毫秒，给系统弹窗、App启动充足时间
     const timer = setTimeout(()=>{
         if(!switched){
-            const confirmOpen = confirm(`无法唤起${name}客户端，是否打开网页版？`);
+            const confirmOpen = confirm(`如果没有打开${name}，是否需要打开网页版？`);
             if(confirmOpen){
                 window.open(webUrl,"_blank");
             }
         }
+        // 清理全部监听
         document.removeEventListener("visibilitychange", visibilityHandler);
-    },1200);
+        window.removeEventListener("blur", blurHandler);
+    },2500);
 
+    // 页面可见性监听（Chrome/Edge Windows）
     function visibilityHandler(){
         if(document.hidden){
             switched = true;
             clearTimeout(timer);
             document.removeEventListener("visibilitychange", visibilityHandler);
+            window.removeEventListener("blur", blurHandler);
         }
     }
+    // 窗口失焦监听（Mac Safari核心兼容）
+    function blurHandler(){
+        switched = true;
+        clearTimeout(timer);
+        document.removeEventListener("visibilitychange", visibilityHandler);
+        window.removeEventListener("blur");
+    }
+
     document.addEventListener("visibilitychange", visibilityHandler);
+    window.addEventListener("blur", blurHandler);
     window.location.href = scheme;
 }
 
